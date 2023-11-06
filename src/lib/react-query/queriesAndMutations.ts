@@ -13,6 +13,7 @@ import {
   getCurrentUser,
   signOutAccount,
   createPost,
+  getRecentPosts,
 } from "@/lib/appwrite/api";
 
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
@@ -45,5 +46,12 @@ export const useCreatePost = () => {
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
       });
     },
+  });
+};
+
+export const useGetRecentPosts = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+    queryFn: getRecentPosts,
   });
 };
