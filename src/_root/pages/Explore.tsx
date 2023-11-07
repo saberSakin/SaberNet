@@ -1,15 +1,27 @@
-import GridPostList from "@/components/shared/GridPostList";
-import Loader from "@/components/shared/Loader";
-import SearchResults from "@/components/shared/SearchResults";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+
 import { Input } from "@/components/ui";
 import useDebounce from "@/hooks/useDebounce";
-import {
-  useGetPosts,
-  useSearchPosts,
-} from "@/lib/react-query/queriesAndMutations";
-import { useState, useEffect } from "react";
+import { GridPostList, Loader } from "@/components/shared";
+import { useGetPosts, useSearchPosts } from "@/lib/react-query/queries";
 
-import { useInView } from "react-intersection-observer";
+export type SearchResultProps = {
+  isSearchFetching: boolean;
+  searchedPosts: any;
+};
+
+const SearchResults = ({ isSearchFetching, searchedPosts }: SearchResultProps) => {
+  if (isSearchFetching) {
+    return <Loader />;
+  } else if (searchedPosts && searchedPosts.documents.length > 0) {
+    return <GridPostList posts={searchedPosts.documents} />;
+  } else {
+    return (
+      <p className="text-light-4 mt-10 text-center w-full">No results found</p>
+    );
+  }
+};
 
 const Explore = () => {
   const { ref, inView } = useInView();
@@ -17,10 +29,8 @@ const Explore = () => {
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 500);
-  const { data: searchedPosts, isFetching: isSearchFetching } =
-    useSearchPosts(debouncedSearch);
+  const { data: searchedPosts, isFetching: isSearchFetching } = useSearchPosts(debouncedSearch);
 
-  ///infinite scroll
   useEffect(() => {
     if (inView && !searchValue) {
       fetchNextPage();
@@ -35,8 +45,7 @@ const Explore = () => {
     );
 
   const shouldShowSearchResults = searchValue !== "";
-  const shouldShowPosts =
-    !shouldShowSearchResults &&
+  const shouldShowPosts = !shouldShowSearchResults && 
     posts.pages.every((item) => item.documents.length === 0);
 
   return (
